@@ -142,6 +142,10 @@ body {
     margin-bottom: 10px;
 }
 
+.form-group div{
+    white-space: nowrap;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 10px;
@@ -154,6 +158,20 @@ body {
     border-radius: 5px;
     outline: none;
     border: none;
+}
+
+.input-password {
+    padding-right: 35px;
+}
+
+.password-toggler {
+    margin-left: -35px;
+    cursor: pointer;
+    color: #30373d;
+}
+
+.password-toggler:hover {
+    color: #BC4123;
 }
 
 .login-form button {

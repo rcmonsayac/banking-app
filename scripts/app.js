@@ -46,7 +46,6 @@ function Bank(users) {
         user.balance = currentBalance + amount;
         return `Successfully deposited ${amount}.\nNew balance is ${user.balance}.`;
     }
-
     this.withdraw = function (user, amount) {
         let currentBalance = parseFloat(user.balance);
         if (amount > currentBalance) {
@@ -55,7 +54,6 @@ function Bank(users) {
         user.balance = currentBalance - amount;
         return `Successfully withdrew ${amount}.\nNew balance is ${user.balance}.`;
     }
-
     this.send = function (user, dest, amount) {
         let errorMessage = "";
         if (user.username === dest) {
@@ -92,18 +90,19 @@ function BankApp(bank, main) {
             this.addFormListners(forms);
         });
     };
-
     this.loadUser = function (user) {
         this.currentUser = user;
         loadHtml("user", this.mainElement).then(() => {
 
             this.updateProfileDisplay();
             this.updateBalanceDisplay();
-            this.mainElement.querySelector(".logout").addEventListener("click", e => {
+
+            this.mainElement.querySelector(".logout").addEventListener("click", function() {
                 this.loadLanding();
             });
 
             let mainTabs = this.mainElement.querySelectorAll(".main-tab-link");
+
             mainTabs.forEach(currentTab => {
                 currentTab.addEventListener("click", e => {
                     let previousTab = this.mainElement.querySelector(".main-tab-link.active");
@@ -115,9 +114,21 @@ function BankApp(bank, main) {
             this.addFormListners(forms);
         });
     }
-
     this.addFormListners = function (forms) {
         forms.forEach((current) => {
+            //passwordtoggler
+            let password = current.querySelector(".input-password");
+            if(password){
+                let passwordToggler = current.querySelector(".password-toggler");
+                passwordToggler.addEventListener("click", e =>{
+                    const type = password.type === 'password' ? 'text' : 'password';
+                    const currentIcon = password.type === 'password' ? 'fa-eye-slash' : 'fa-eye';
+                    const previousIcon = password.type === 'password' ?  'fa-eye' : 'fa-eye-slash';                    
+                    password.type = type;
+                    passwordToggler.classList.remove(previousIcon);
+                    passwordToggler.classList.add(currentIcon);
+                });
+            }
             current.addEventListener("submit", e => {
                 let action = current.dataset.action;
                 try {
@@ -128,6 +139,7 @@ function BankApp(bank, main) {
                 }
                 e.preventDefault();
             })
+        
         });
 
     }
@@ -148,7 +160,31 @@ function BankApp(bank, main) {
         let currentTabContent = this.mainElement.querySelector(`.main-tabcontent#${currentAction}`);
         currentTabContent.classList.add("shown");
     }
+    this.updateBankingDisplay = function (form, message) {
+        this.updateBalanceDisplay();
+        resetForm(form);
+        showCustomAlert(message);
+    }
+    this.updateBalanceDisplay = function(){
+        this.mainElement.querySelector("#current-balance").innerHTML = this.currentUser.balance;
+    }
+    this.updateProfileDisplay = function () {
 
+        this.mainElement.querySelector("#current-user").innerHTML = this.currentUser.fullname;
+
+        let profileEle = this.mainElement.querySelector('#profile');
+
+        profileEle.querySelector(".input-fullname").value = this.currentUser.fullname;
+        profileEle.querySelector(".input-password").value = this.currentUser.password;
+        profileEle.querySelector(".input-imageURL").value = this.currentUser.imageURL;
+
+        let profilePrev = profileEle.querySelector(".profile-preview");
+        profilePrev.querySelector(".img").style.backgroundImage = `url(${this.currentUser.imageURL})`;
+        profilePrev.querySelector("p").innerHTML = this.currentUser.fullname;
+    }
+
+
+    //actions
     this.login = function (form) {
         let username = form.querySelector("input.input-username");
         let password = form.querySelector("input.input-password");
@@ -191,34 +227,10 @@ function BankApp(bank, main) {
         showCustomAlert(message);
         this.updateProfileDisplay();
     }
-
-    this.updateBankingDisplay = function (form, message) {
-        this.updateBalanceDisplay();
-        resetForm(form);
-        showCustomAlert(message);
-    }
-
-    this.updateBalanceDisplay = function(){
-        this.mainElement.querySelector("#current-balance").innerHTML = this.currentUser.balance;
-    }
-
-    this.updateProfileDisplay = function () {
-
-        this.mainElement.querySelector("#current-user").innerHTML = this.currentUser.fullname;
-
-        let profileEle = this.mainElement.querySelector('#profile');
-
-        profileEle.querySelector(".input-fullname").value = this.currentUser.fullname;
-        profileEle.querySelector(".input-password").value = this.currentUser.password;
-        profileEle.querySelector(".input-imageURL").value = this.currentUser.imageURL;
-
-        let profilePrev = profileEle.querySelector(".profile-preview");
-        profilePrev.querySelector(".img").style.backgroundImage = `url(${this.currentUser.imageURL})`;
-        profilePrev.querySelector("p").innerHTML = this.currentUser.fullname;
-    }
-
+    //////
 
 }
+
 //utilities
 function loadHtml(req, ele) {
     return fetch(`${req}.html`).then(res => {
@@ -232,9 +244,18 @@ function addValidationMessage(form, err) {
     let validation = form.querySelector(".validation");
     validation.innerHTML = err.message;
     console.error(err);
-    setTimeout(() => { validation.innerHTML = "" }, 5000);
+    setTimeout(() => { validation.innerHTML = "" }, 10000);
 }
 
+function resetForm(form) {
+    let inputs = form.querySelectorAll("input");
+    inputs.forEach(input => {
+        input.value = "";
+    })
+}
+
+
+//custom alert
 function showCustomAlert(message) {
     let customAlert = document.querySelector(".custom-alert");
     customAlert.style.display = "flex";
@@ -247,16 +268,9 @@ document.querySelector(".custom-alert button").addEventListener("click", e => {
     customAlert.style.display = "none";
 });
 
-function resetForm(form) {
-    let inputs = form.querySelectorAll("input");
-    inputs.forEach(input => {
-        input.value = "";
-    })
-}
 
 
 //main
-
 const main = document.querySelector(".main");
 const users = [];
 const bank = new Bank(users);
