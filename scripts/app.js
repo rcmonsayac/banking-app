@@ -20,7 +20,7 @@ function Bank(users) {
         if (user) {
             return user;
         }
-        else {
+        else {  
             throw new Error(`You have entered an invalid username and/or password.`);
         }
     };
@@ -97,7 +97,7 @@ function BankApp(bank, main) {
             this.updateProfileDisplay();
             this.updateBalanceDisplay();
 
-            this.mainElement.querySelector(".logout").addEventListener("click", function() {
+            this.mainElement.querySelector(".logout").addEventListener("click", () => {
                 this.loadLanding();
             });
 
